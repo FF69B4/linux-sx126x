@@ -2,6 +2,11 @@
 
 A general-purpose kernel driver implementation for [Semtech's sx126x series driver implementation](https://github.com/Lora-net/sx126x_driver).
 
+## Repository layout
+
+- `src/` - Linux kernel driver work area.
+- `third_party/semtech/sx126x_driver/` - bundled Semtech SX126x driver source.
+
 ## Attribution
 
 This project is expected to use or adapt code from Semtech's
