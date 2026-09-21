@@ -1,6 +1,6 @@
 # linux-sx126x
 
-A general-purpose kernel driver implementation for [Semtech's sx126x series driver implementation](https://github.com/Lora-net/sx126x_driver).
+A kernel driver implementation of [Semtech's sx126x series drivers](https://github.com/Lora-net/sx126x_driver).
 
 ## Repository layout
 
