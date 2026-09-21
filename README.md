@@ -7,6 +7,24 @@ A general-purpose kernel driver implementation for [Semtech's sx126x series driv
 - `src/` - Linux kernel driver work area.
 - `third_party/semtech/sx126x_driver/` - bundled Semtech SX126x driver source.
 
+## Current driver status
+
+The in-tree Linux driver work currently builds as an out-of-tree kernel module.
+It probes SX1261/SX1262/SX1268 devices over SPI, handles optional `reset` and
+`busy` GPIOs, resets the radio, sends `GetStatus`, and logs the returned status.
+
+Build with:
+
+```sh
+make
+```
+
+Clean with:
+
+```sh
+make clean
+```
+
 ## Attribution
 
 This project is expected to use or adapt code from Semtech's
