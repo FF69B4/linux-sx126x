@@ -12,6 +12,7 @@ A kernel driver implementation of [Semtech's sx126x series drivers](https://gith
 The in-tree Linux driver work currently builds as an out-of-tree kernel module.
 It probes SX1261/SX1262/SX1268 devices over SPI, handles optional `reset` and
 `busy` GPIOs, resets the radio, sends `GetStatus`, and logs the returned status.
+No userspace packet I/O ABI is exposed yet.
 
 Build with:
 
@@ -23,6 +24,19 @@ Clean with:
 
 ```sh
 make clean
+```
+
+Load against real hardware with:
+
+```sh
+sudo insmod src/sx126x.ko
+```
+
+For binding/Device Tree smoke tests without touching the radio, use probe-only
+mode:
+
+```sh
+sudo insmod src/sx126x.ko probe_only=1
 ```
 
 ## Attribution

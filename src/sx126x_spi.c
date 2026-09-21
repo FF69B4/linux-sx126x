@@ -22,6 +22,10 @@
 
 #define SX126X_BUSY_TIMEOUT_MS		100
 
+static bool probe_only;
+module_param(probe_only, bool, 0644);
+MODULE_PARM_DESC(probe_only, "bind device without resetting or reading SX126x status");
+
 struct sx126x_variant {
 	const char *name;
 };
@@ -179,6 +183,12 @@ static int sx126x_probe(struct spi_device *spi)
 	if (IS_ERR(radio->busy_gpio))
 		return dev_err_probe(dev, PTR_ERR(radio->busy_gpio),
 				     "failed to get busy GPIO\n");
+
+	if (probe_only) {
+		dev_info(dev, "%s probe-only mode: skipping radio reset and status read\n",
+			 radio->variant->name);
+		return 0;
+	}
 
 	mutex_lock(&radio->lock);
 	ret = sx126x_hw_reset(radio);
