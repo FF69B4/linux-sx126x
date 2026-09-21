@@ -234,5 +234,5 @@ static struct spi_driver sx126x_driver = {
 module_spi_driver(sx126x_driver);
 
 MODULE_DESCRIPTION("Semtech SX126x packet radio SPI driver");
-MODULE_AUTHOR("Ina");
+MODULE_AUTHOR("i.n.a");
 MODULE_LICENSE("GPL");
