@@ -22,14 +22,21 @@
 
 #define SX126X_BUSY_TIMEOUT_MS		100
 
+/*
+ * Development aid for machines that can instantiate an SPI device but do not
+ * have an SX126x wired up yet. This validates driver binding and resource
+ * lookup without issuing radio commands or defining any userspace ABI.
+ */
 static bool probe_only;
 module_param(probe_only, bool, 0644);
 MODULE_PARM_DESC(probe_only, "bind device without resetting or reading SX126x status");
 
+/* Static per-chip data. Capabilities will grow here as variants diverge. */
 struct sx126x_variant {
 	const char *name;
 };
 
+/* Per-device state owned by the Linux SPI driver. */
 struct sx126x {
 	struct device *dev;
 	struct spi_device *spi;
@@ -94,6 +101,10 @@ static int sx126x_wait_while_busy(struct sx126x *radio)
 	unsigned long timeout;
 	int busy;
 
+	/*
+	 * BUSY is optional only to keep early smoke tests easy. Real hardware
+	 * should describe this GPIO so command sequencing can be checked.
+	 */
 	if (!radio->busy_gpio)
 		return 0;
 
@@ -114,6 +125,11 @@ static int sx126x_wait_while_busy(struct sx126x *radio)
 
 static int sx126x_hw_reset(struct sx126x *radio)
 {
+	/*
+	 * The reset line is active high on SX126x designs using the normal
+	 * Semtech reference connection. Device Tree polarity can still invert
+	 * this at the GPIO descriptor layer for boards that wire it differently.
+	 */
 	if (!radio->reset_gpio)
 		return 0;
 
@@ -131,6 +147,11 @@ static int sx126x_get_status(struct sx126x *radio, u8 *status)
 	u8 rx = SX126X_NOP;
 	int ret;
 
+	/*
+	 * GetStatus is intentionally the first hardware command implemented:
+	 * it is small, side-effect-light, and proves reset, BUSY, SPI command
+	 * framing, and response parsing before any public interface exists.
+	 */
 	ret = sx126x_wait_while_busy(radio);
 	if (ret)
 		return ret;
@@ -169,6 +190,7 @@ static int sx126x_probe(struct spi_device *spi)
 	mutex_init(&radio->lock);
 	spi_set_drvdata(spi, radio);
 
+	/* SX126x uses SPI mode 0; keep setup explicit for board-file users. */
 	spi->mode = SPI_MODE_0;
 	ret = spi_setup(spi);
 	if (ret)
@@ -190,6 +212,11 @@ static int sx126x_probe(struct spi_device *spi)
 		return 0;
 	}
 
+	/*
+	 * Keep probe limited to hardware bring-up. Packet I/O and configuration
+	 * UAPI are deliberately absent until the kernel-facing architecture is
+	 * clearer.
+	 */
 	mutex_lock(&radio->lock);
 	ret = sx126x_hw_reset(radio);
 	if (!ret)
